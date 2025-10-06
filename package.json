@@ -1,0 +1,17 @@
+{
+  "name": "@hoge1e3/content",
+  "version": "1.5.1",
+  "main": "./js/src/Content.js",
+  "type": "module",
+  "types": "./js/src/Content.d.ts",
+  "scripts": {
+    "test": "node ./js/test/test.js"
+  },
+  "keywords": [],
+  "author": "hoge1e3",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  },
+  "description": "Convert ArrayBuffer/Uint8Array/(node)Buffer/plain-text/dataURL"
+}

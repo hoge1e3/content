@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+      // ソースマップを有効化
+      "sourceMap": true,
+      "target": "esnext",
+      "lib": ["ESNext"],
+      "module": "esnext",
+      "moduleResolution": "node",
+      // 厳密モードとして設定
+      "declaration": true,
+      "strict": true,
+      "allowSyntheticDefaultImports": true,
+      "outDir":"./js",
+      "incremental": true,
+      "tsBuildInfoFile": "./.tsbuildinfo",
+    },
+    "include": ["src","test"],
+  }
