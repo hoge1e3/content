@@ -184,7 +184,13 @@ export class Content {
     hasArrayBuffer(): boolean { return !!this.arrayBuffer; }
     hasUint8Array(): boolean { return this.hasNodeBuffer()||!!this.uint8Array;}
     hasNodeBuffer(): boolean { return !!this.nodeBuffer; }
-    
+    roughSize(){
+        if (this.hasNodeBuffer()) return this.nodeBuffer!.byteLength;
+        if (this.hasArrayBuffer()) return this.arrayBuffer!.byteLength;
+        if (this.hasPlainText()) return this.plain!.length;
+        if (this.hasURL()) return this.url!.length;
+        return 0;
+    }
 
     toBlob(): Blob {
         return new Blob([this.toArrayBuffer()], { type: this.contentType });
