@@ -14,7 +14,7 @@
   "author": "hoge1e3",
   "license": "ISC",
   "devDependencies": {
-    "typescript": "^5.7.2"
+    "typescript": "^5.8.3"
   },
   "description": "Convert ArrayBuffer/Uint8Array/(node)Buffer/plain-text/dataURL"
 }
