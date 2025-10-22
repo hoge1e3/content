@@ -1,6 +1,6 @@
 {
   "name": "@hoge1e3/content",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "main": "./js/src/Content.js",
   "type": "module",
   "types": "./js/src/Content.d.ts",
