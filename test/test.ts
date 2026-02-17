@@ -104,6 +104,22 @@ function testMixedText() {
     //Content.plainText();
 
 }
+function testDataURLWithCharset() {
+    const encode_ABC="data:text/plain;base64,QUJD";
+    const encode_ABC_with_charset="data:text/plain;charset=utf8;base64,QUJD";
+    const c_ABC=Content.url(encode_ABC);
+    const c_ABC_with_charset=Content.url(encode_ABC_with_charset);
+    assert.equal(c_ABC.contentType,"text/plain");
+    assert.equal(c_ABC_with_charset.contentType,"text/plain;charset=utf8");
+    contEq(c_ABC.toUint8Array(), c_ABC_with_charset.toUint8Array());
+    assert.equal(c_ABC.toPlainText(), "ABC");
+    assert.equal(c_ABC_with_charset.toPlainText(),"ABC");
+    assert.equal(c_ABC.toURL(),encode_ABC);
+    assert.equal(c_ABC_with_charset.toURL(),encode_ABC_with_charset);
+    console.log(c_ABC.toURL());
+    console.log(c_ABC_with_charset.toURL());
+}
 testContent();
 testSlice();
 testMixedText();
+testDataURLWithCharset();

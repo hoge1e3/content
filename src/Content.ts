@@ -40,6 +40,8 @@ export class Content {
     static url(url: string): Content {
         const c = new Content();
         c.url = url;
+        const u=new DataURL(url);
+        c.contentType=u.parseHeader()[0];
         return c;
     }
     /**
@@ -239,15 +241,27 @@ export class DataURL {
         this.url = head + base64;
         return this.url;
     }
+    parseHeader():[string,string] {
+        const dataURL: string=this.url;
+        //const reg = /^data:([^;]+);base64,/i;
+        const reg = /^data:([^;,]+(?:;[^,]*)?);base64,/i;
+        const r = reg.exec(dataURL);
+        if (!r) throw new Error(`malformed dataURL: ${dataURL.slice(0, 100)}`);
+        return [r[1],dataURL.substring(r[0].length)];
+    }
 
     toUint8Array(): Uint8Array<ArrayBuffer> {
         if (this.buffer) return this.buffer;
-        const dataURL: string=this.url;
-        const reg = /^data:([^;]+);base64,/i;
+        /*const dataURL: string=this.url;
+        //const reg = /^data:([^;]+);base64,/i;
+        const reg = /^data:([^;,]+(?:;[^,]*)?);base64,/i;
         const r = reg.exec(dataURL);
         if (!r) throw new Error(`malformed dataURL: ${dataURL.slice(0, 100)}`);
         this.contentType = r[1];
-        this.buffer = base64_To_Uint8Array(dataURL.substring(r[0].length));
+        */
+        const [ctype,body]=this.parseHeader();
+        this.contentType=ctype;
+        this.buffer = base64_To_Uint8Array(body);
         return this.buffer;
     }
 
