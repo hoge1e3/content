@@ -6,6 +6,9 @@ export type ContentBuffer = Uint8Array<ArrayBuffer> | ArrayBuffer;
 let BufferImpl: typeof Buffer | undefined=( (globalThis as any).Buffer);
 const textEncoder=new TextEncoder();
 const textDecoder=new TextDecoder();
+export type SerializedContent={contentType?:string}&(
+    {plain:string}|{url:string}|{uint8Array:Uint8Array<ArrayBuffer>}|{arrayBuffer:ArrayBuffer}
+);
 export class Content {
     contentType?: string;
     plain?: string;
@@ -18,6 +21,13 @@ export class Content {
     // -------- static methods --------
     static setBufferPolyfill(b: typeof Buffer) {
         BufferImpl = b;
+    }
+    static deserialize(s: SerializedContent): Content {
+        if ("plain" in s) return Content.plainText(s.plain, s.contentType);
+        else if ("url" in s) return Content.url(s.url);
+        else if ("uint8Array" in s) return Content.bin(s.uint8Array, s.contentType ?? "application/octet-stream");
+        else if ("arrayBuffer" in s) return Content.bin(s.arrayBuffer, s.contentType ?? "application/octet-stream");
+        else throw new Error("Invalid serialized content");
     }
 
     static plainText(text: string, contentType: string = "text/plain"): Content {
@@ -113,6 +123,13 @@ export class Content {
 
 
     // -------- instance methods --------
+    serialize(): SerializedContent {
+        if (this.hasPlainText()) return { plain: this.plain!, contentType: this.contentType };
+        else if (this.hasURL()) return { url: this.url! };
+        else if (this.hasNodeBuffer()) return { uint8Array: new Uint8Array(this.nodeBuffer!.buffer, this.nodeBuffer!.byteOffset, this.nodeBuffer!.byteLength), contentType: this.contentType };
+        else if (this.hasArrayBuffer()) return { arrayBuffer: this.arrayBuffer!, contentType: this.contentType };
+        else throw new Error("No content to serialize");
+    }
     toBin(binType?: typeof Buffer): Buffer<ArrayBuffer>;
     toBin(binType?: typeof ArrayBuffer): ArrayBuffer;
     toBin(binType?: typeof Uint8Array): Uint8Array<ArrayBuffer>;
