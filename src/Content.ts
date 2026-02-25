@@ -129,6 +129,7 @@ export class Content {
         if (this.hasPlainText()) return { plain: this.plain!, contentType: this.contentType };
         else if (this.hasURL()) return { url: this.url! };
         else if (this.hasNodeBuffer()) return { uint8Array: new Uint8Array(this.nodeBuffer!.buffer, this.nodeBuffer!.byteOffset, this.nodeBuffer!.byteLength), contentType: this.contentType };
+        else if (this.uint8Array) return { uint8Array: this.uint8Array, contentType: this.contentType }; // ← 追加
         else if (this.hasArrayBuffer()) return { arrayBuffer: this.arrayBuffer!, contentType: this.contentType };
         else throw new Error("No content to serialize");
     }
