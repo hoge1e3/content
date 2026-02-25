@@ -6,6 +6,9 @@ export type ContentBuffer = Uint8Array<ArrayBuffer> | ArrayBuffer;
 let BufferImpl: typeof Buffer | undefined=( (globalThis as any).Buffer);
 const textEncoder=new TextEncoder();
 const textDecoder=new TextDecoder();
+export type SerializedContent={contentType?:string}&(
+    {plain:string}|{url:string}|{uint8Array:Uint8Array<ArrayBuffer>}|{arrayBuffer:ArrayBuffer}
+);
 export class Content {
     contentType?: string;
     plain?: string;
@@ -19,6 +22,13 @@ export class Content {
     static setBufferPolyfill(b: typeof Buffer) {
         BufferImpl = b;
     }
+    static deserialize(s: SerializedContent): Content {
+        if ("plain" in s) return Content.plainText(s.plain, s.contentType);
+        else if ("url" in s) return Content.url(s.url);
+        else if ("uint8Array" in s) return Content.bin(s.uint8Array, s.contentType ?? "application/octet-stream");
+        else if ("arrayBuffer" in s) return Content.bin(s.arrayBuffer, s.contentType ?? "application/octet-stream");
+        else throw new Error("Invalid serialized content");
+    }
 
     static plainText(text: string, contentType: string = "text/plain"): Content {
         const c = new Content();
@@ -30,6 +40,8 @@ export class Content {
     static url(url: string): Content {
         const c = new Content();
         c.url = url;
+        const u=new DataURL(url);
+        c.contentType=u.parseHeader()[0];
         return c;
     }
     /**
@@ -113,6 +125,13 @@ export class Content {
 
 
     // -------- instance methods --------
+    serialize(): SerializedContent {
+        if (this.hasPlainText()) return { plain: this.plain!, contentType: this.contentType };
+        else if (this.hasURL()) return { url: this.url! };
+        else if (this.hasNodeBuffer()) return { uint8Array: new Uint8Array(this.nodeBuffer!.buffer, this.nodeBuffer!.byteOffset, this.nodeBuffer!.byteLength), contentType: this.contentType };
+        else if (this.hasArrayBuffer()) return { arrayBuffer: this.arrayBuffer!, contentType: this.contentType };
+        else throw new Error("No content to serialize");
+    }
     toBin(binType?: typeof Buffer): Buffer<ArrayBuffer>;
     toBin(binType?: typeof ArrayBuffer): ArrayBuffer;
     toBin(binType?: typeof Uint8Array): Uint8Array<ArrayBuffer>;
@@ -222,15 +241,27 @@ export class DataURL {
         this.url = head + base64;
         return this.url;
     }
+    parseHeader():[string,string] {
+        const dataURL: string=this.url;
+        //const reg = /^data:([^;]+);base64,/i;
+        const reg = /^data:([^;,]+(?:;[^,]*)?);base64,/i;
+        const r = reg.exec(dataURL);
+        if (!r) throw new Error(`malformed dataURL: ${dataURL.slice(0, 100)}`);
+        return [r[1],dataURL.substring(r[0].length)];
+    }
 
     toUint8Array(): Uint8Array<ArrayBuffer> {
         if (this.buffer) return this.buffer;
-        const dataURL: string=this.url;
-        const reg = /^data:([^;]+);base64,/i;
+        /*const dataURL: string=this.url;
+        //const reg = /^data:([^;]+);base64,/i;
+        const reg = /^data:([^;,]+(?:;[^,]*)?);base64,/i;
         const r = reg.exec(dataURL);
         if (!r) throw new Error(`malformed dataURL: ${dataURL.slice(0, 100)}`);
         this.contentType = r[1];
-        this.buffer = base64_To_Uint8Array(dataURL.substring(r[0].length));
+        */
+        const [ctype,body]=this.parseHeader();
+        this.contentType=ctype;
+        this.buffer = base64_To_Uint8Array(body);
         return this.buffer;
     }
 
