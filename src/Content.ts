@@ -277,7 +277,10 @@ export class DataURL {
 
 
 export function base64_To_Uint8Array(base64: string):Uint8Array<ArrayBuffer> {
-    base64 = base64.replace(/[\n=]/g, "");
+    const bstr = atob(base64);
+    const bin = Uint8Array.from(bstr, str => str.charCodeAt(0));
+    return bin;
+    /*base64 = base64.replace(/[\n=]/g, "");
     const dic: Record<number, number> = {};
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     for (let i = 0; i < chars.length; i++) dic[chars.charCodeAt(i)] = i;
@@ -327,10 +330,13 @@ export function base64_To_Uint8Array(base64: string):Uint8Array<ArrayBuffer> {
         i++;
         p++;
     }
-    return ary_u8;
+    return ary_u8;*/
 }
 
 export function base64_From_Uint8Array(ary_buffer: Uint8Array<ArrayBuffer>): string {
+    const bstr = String.fromCharCode(...ary_buffer); 
+    return btoa(bstr); 
+/*
     const dic = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".split("");
     const ary_u8 = new Uint8Array(ary_buffer);
     let base64 = "";
@@ -359,5 +365,5 @@ export function base64_From_Uint8Array(ary_buffer: Uint8Array<ArrayBuffer>): str
     if (m) base64 += dic[n];
     if (m === 1) base64 += "==";
     else if (m === 2) base64 += "=";
-    return base64;
+    return base64;*/
 }

@@ -42,7 +42,7 @@ function testContent() {
             assert.equal(((c as any).nodeBuffer as Buffer).length, binLen,"Bin length not match");
         }
         const dst=ct.fromc(c);
-        console.log("Convert Content ",tfrom,"->",tto);
+        console.log("Convert Content ",tfrom,"->",tto,dst);
         if (!contEq(dst, ct.src)) {
             console.log("Actual: ",dst);
             console.log("Expected: ",ct.src);
@@ -69,38 +69,38 @@ function testMixedText() {
     const bin=new Uint8Array([0,1,2]);
     const cbin=Content.bin(bin,"application/octet-stream");
     console.log(cbin.toMixedText());
-    const pABC=Content.plainText("ABC");
-    console.log(pABC.toURL());
+    const plain_ABC=Content.plainText("ABC");
+    console.log(plain_ABC.toURL());
     const encode_bin="data:application/octet-stream;base64,AAEC";
     const encode_ABC="data:text/plain;base64,QUJD";
-    const pE_ABC=Content.plainText(encode_ABC);
-    const encode_encode_ABC=pE_ABC.toURL();
+    const plain_encode_ABC=Content.plainText(encode_ABC);
+    const encode_encode_ABC=plain_encode_ABC.toURL();
     // data:text/plain;base64,ZGF0YTp0ZXh0L3BsYWluO2Jhc2U2NCxRVUpE";
     //                        dat a:t ext /pl ain ;ba se6 4,Q UJD
-    const mE_bin=Content.mixedText(encode_bin);
-    const mABC=Content.mixedText("ABC");
-    const mE_ABC=Content.mixedText(encode_ABC);
-    console.log(mE_bin.toUint8Array());
-    console.log(mABC.toUint8Array());
-    console.log(mE_ABC.toUint8Array());
-    console.log(pE_ABC.toUint8Array());
-    assert.ok(mE_bin.toUint8Array().length===bin.length);
-    assert.ok(mABC.toUint8Array().length==="ABC".length);
-    assert.ok(mE_ABC.toUint8Array().length==="ABC".length);
-    assert.ok(pE_ABC.toUint8Array().length===encode_ABC.length);
+    const mixed_encode_bin=Content.mixedText(encode_bin);
+    const mixed_ABC=Content.mixedText("ABC");
+    const mixed_encode_ABC=Content.mixedText(encode_ABC);
+    console.log("mixed_encode_bin",mixed_encode_bin.toUint8Array());
+    console.log("mixed_ABC",mixed_ABC.toUint8Array());
+    console.log("mixed_encode_ABC",mixed_encode_ABC.toUint8Array());
+    console.log("plain_encode_ABC",plain_encode_ABC.toUint8Array());
+    assert.ok(mixed_encode_bin.toUint8Array().length===bin.length);
+    assert.ok(mixed_ABC.toUint8Array().length==="ABC".length);
+    assert.ok(mixed_encode_ABC.toUint8Array().length==="ABC".length);
+    assert.ok(plain_encode_ABC.toUint8Array().length===encode_ABC.length);
 
-    console.log(cbin.toMixedText());
-    console.log(mE_bin.toMixedText());
-    console.log(pABC.toMixedText());
-    console.log(mABC.toMixedText());
-    console.log(mE_ABC.toMixedText());
-    console.log(pE_ABC.toMixedText());
+    console.log("cbin.toMixedText()",cbin.toMixedText());
+    console.log("mixed_encode_bin.toMixedText()",mixed_encode_bin.toMixedText());
+    console.log("plain_ABC.toMixedText()",plain_ABC.toMixedText());
+    console.log("mixed_ABC.toMixedText()",mixed_ABC.toMixedText());
+    console.log("mixed_encode_ABC.toMixedText()",mixed_encode_ABC.toMixedText());
+    console.log("plain_encode_ABC.toMixedText()",plain_encode_ABC.toMixedText());
     assert.ok(cbin.toMixedText()===encode_bin);
-    assert.ok(mE_bin.toMixedText()===encode_bin);
-    assert.ok(pABC.toMixedText()==="ABC");
-    assert.ok(mABC.toMixedText()==="ABC");
-    assert.ok(mE_ABC.toMixedText()===encode_ABC);
-    assert.ok(pE_ABC.toMixedText()===encode_encode_ABC);
+    assert.ok(mixed_encode_bin.toMixedText()===encode_bin);
+    assert.ok(plain_ABC.toMixedText()==="ABC");
+    assert.ok(mixed_ABC.toMixedText()==="ABC");
+    assert.ok(mixed_encode_ABC.toMixedText()===encode_ABC);
+    assert.ok(plain_encode_ABC.toMixedText()===encode_encode_ABC);
     //Content.plainText();
 
 }
