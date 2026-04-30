@@ -206,6 +206,7 @@ export class Content {
     hasNodeBuffer(): boolean { return !!this.nodeBuffer; }
     roughSize(){
         if (this.hasNodeBuffer()) return this.nodeBuffer!.byteLength;
+        if (this.hasUint8Array()) return this.uint8Array!.byteLength;
         if (this.hasArrayBuffer()) return this.arrayBuffer!.byteLength;
         if (this.hasPlainText()) return this.plain!.length;
         if (this.hasURL()) return this.url!.length;
