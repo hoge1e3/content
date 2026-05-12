@@ -1,3 +1,5 @@
+import { arrayBuffer } from "stream/consumers";
+
 function assert<T>(p:T,m:string) {
     if(!p) throw new Error(m);
     return p;
@@ -29,15 +31,21 @@ export class Content {
         else if ("arrayBuffer" in s) return Content.bin(s.arrayBuffer, s.contentType ?? "application/octet-stream");
         else throw new Error("Invalid serialized content");
     }
-
+    /**@deprecated Use fromPlainText */
     static plainText(text: string, contentType: string = "text/plain"): Content {
+        return Content.fromPlainText(text, contentType);
+    }
+    static fromPlainText(text: string, contentType: string = "text/plain"): Content {
         const c = new Content();
         c.contentType = contentType;
         c.plain = text;
         return c;
     }
-
-    static url(url: string): Content {
+    /**@deprecated Use fromDataURL */
+    static url(dataURL:string):Content{
+        return Content.fromDataURL(dataURL);
+    }
+    static fromDataURL(url: string): Content {
         const c = new Content();
         c.url = url;
         const u=new DataURL(url);
@@ -52,11 +60,38 @@ export class Content {
      * @param text 
      * @returns Content
      */
-    static mixedText(text: string): Content {
-        if (Content.looksLikeDataURL(text)) return Content.url(text);
-        return Content.plainText(text);
+    static fromMixedText(text: string): Content {
+        if (Content.looksLikeDataURL(text)) return Content.fromDataURL(text);
+        return Content.fromPlainText(text);
     }
-
+    /**@deprecated use fromMixedText */
+    static mixedText(text:string):Content{
+        return Content.fromMixedText(text);
+    }
+    static fromUint8Array(bin:Uint8Array<ArrayBuffer>, contentType="application/octet-stream"):Content {
+        const c = new Content();
+        c.uint8Array = bin;
+        c.contentType=contentType;
+        return c;
+    }
+    static fromArrayBuffer(bin:ArrayBuffer, contentType="application/octet-stream"):Content {
+        const c = new Content();
+        c.arrayBuffer = bin;
+        c.contentType=contentType;
+        return c;
+    }
+    static fromNodeBuffer(bin:Buffer<ArrayBuffer>, contentType="application/octet-stream"):Content {
+        const c = new Content();
+        c.nodeBuffer = bin;
+        c.contentType=contentType;
+        return c;
+    }
+    /**
+     * @deprecated Use fromUint8Array, fromArrayBuffer, fromNodeBuffer
+     * @param bin 
+     * @param contentType 
+     * @returns 
+     */
     static bin(bin: ContentBuffer, contentType: string): Content {
         assert(contentType, "contentType should be set");
         const c = new Content();
@@ -278,6 +313,8 @@ export class DataURL {
 
 
 export function base64_To_Uint8Array(base64: string):Uint8Array<ArrayBuffer> {
+    const u=Uint8Array as any;
+    if (typeof u.fromBase64==="function") return u.fromBase64(base64);
     const bstr = atob(base64);
     const bin = Uint8Array.from(bstr, str => str.charCodeAt(0));
     return bin;
@@ -335,6 +372,8 @@ export function base64_To_Uint8Array(base64: string):Uint8Array<ArrayBuffer> {
 }
 
 export function base64_From_Uint8Array(ary_buffer: Uint8Array<ArrayBuffer>): string {
+    const a=ary_buffer as any;
+    if (typeof a.toBase64==="function")return a.toBase64();
     const bstr = String.fromCharCode(...ary_buffer); 
     return btoa(bstr); 
 /*
